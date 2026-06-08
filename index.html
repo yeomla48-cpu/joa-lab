@@ -478,22 +478,14 @@
         message = `🧪 연구 결과
 ${topNames} 수치가 가장 강하게 관측되었습니다.`;
 
-        if (topKeys.includes("kind")) message += "
-조아의 다정함 때문에 연구원들의 마음이 따뜻해지고 있습니다.";
-        else if (topKeys.includes("cute")) message += "
-귀여움 과다 검출. 연구원들의 심장 보호가 필요합니다.";
-        else if (topKeys.includes("clumsy")) message += "
-허당력이 감지되었습니다. 귀여운 실수가 발생할 가능성이 있습니다.";
-        else if (topKeys.includes("positive")) message += "
-긍정에너지가 퍼지고 있습니다. 방송 분위기가 밝아지고 있습니다.";
-        else if (topKeys.includes("sing")) message += "
-노래력이 높게 측정되었습니다. 귀 호강 구간입니다.";
-        else if (topKeys.includes("empathy")) message += "
-공감력이 높게 관측되었습니다. 마음이 따뜻해질 수 있습니다.";
-        else if (topKeys.includes("funny")) message += "
-웃음제조력이 검출되었습니다. 방송 중 웃음 사고가 예상됩니다.";
-        else if (topKeys.includes("happy")) message += "
-행복전파력이 퍼지고 있습니다. 접속자 전원 미소 주의.";
+        if (topKeys.includes("kind")) message += "\n조아의 다정함 때문에 연구원들의 마음이 따뜻해지고 있습니다.";
+        else if (topKeys.includes("cute")) message += "\n귀여움 과다 검출. 연구원들의 심장 보호가 필요합니다.";
+        else if (topKeys.includes("clumsy")) message += "\n허당력이 감지되었습니다. 귀여운 실수가 발생할 가능성이 있습니다.";
+        else if (topKeys.includes("positive")) message += "\n긍정에너지가 퍼지고 있습니다. 방송 분위기가 밝아지고 있습니다.";
+        else if (topKeys.includes("sing")) message += "\n노래력이 높게 측정되었습니다. 귀 호강 구간입니다.";
+        else if (topKeys.includes("empathy")) message += "\n공감력이 높게 관측되었습니다. 마음이 따뜻해질 수 있습니다.";
+        else if (topKeys.includes("funny")) message += "\n웃음제조력이 검출되었습니다. 방송 중 웃음 사고가 예상됩니다.";
+        else if (topKeys.includes("happy")) message += "\n행복전파력이 퍼지고 있습니다. 접속자 전원 미소 주의.";
       }
 
       document.getElementById("warningText").innerText = message;
