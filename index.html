@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>조아 연구소</title>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(180deg, #fff4fb, #eef7ff);
+      color: #333;
+      text-align: center;
+    }
+
+    .container {
+      max-width: 430px;
+      margin: 0 auto;
+      padding: 30px 18px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 24px;
+      padding: 24px 18px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+      margin-bottom: 20px;
+    }
+
+    h1 {
+      font-size: 30px;
+      margin-bottom: 8px;
+    }
+
+    h2 {
+      margin-top: 0;
+    }
+
+    .subtitle {
+      color: #777;
+      font-size: 15px;
+      margin-bottom: 20px;
+      line-height: 1.5;
+    }
+
+    input {
+      width: 100%;
+      border-radius: 14px;
+      border: 1px solid #ddd;
+      padding: 13px;
+      box-sizing: border-box;
+      font-size: 15px;
+      margin-bottom: 14px;
+      outline: none;
+    }
+
+    input:focus {
+      border-color: #ff9ed2;
+    }
+
+    .buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    button {
+      border: none;
+      border-radius: 16px;
+      padding: 14px 10px;
+      font-size: 16px;
+      background: #ffe3f4;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #ffd1ec;
+    }
+
+    button:disabled {
+      background: #eee;
+      color: #aaa;
+      cursor: not-allowed;
+    }
+
+    .result {
+      text-align: left;
+      margin: 16px 0;
+      font-size: 15px;
+      font-weight: bold;
+    }
+
+    .bar-bg {
+      background: #eee;
+      border-radius: 999px;
+      overflow: hidden;
+      height: 14px;
+      margin-top: 6px;
+    }
+
+    .bar {
+      height: 100%;
+      background: #ff9ed2;
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+
+    .warning {
+      font-weight: bold;
+      color: #ff5fa2;
+      line-height: 1.6;
+      white-space: pre-line;
+    }
+
+    .small {
+      font-size: 13px;
+      color: #888;
+      line-height: 1.5;
+    }
+
+    .joa-score {
+      font-size: 34px;
+      font-weight: bold;
+      color: #ff5fa2;
+      margin: 10px 0;
+    }
+
+    .admin-area {
+      display: none;
+      margin-top: 16px;
+      text-align: left;
+    }
+
+    .log-item {
+      background: #fff7fc;
+      border-radius: 14px;
+      padding: 12px;
+      margin: 8px 0;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .danger {
+      background: #ffe1e1;
+      color: #b30000;
+    }
+
+    .status {
+      margin-top: 12px;
+      font-size: 14px;
+      color: #ff5fa2;
+      font-weight: bold;
+      min-height: 20px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+
+    <div class="card">
+      <h1>🧪 조아 연구소</h1>
+      <p class="subtitle">
+        오늘의 연구 주제:<br>
+        조아는 어떤 사람인가요?<br>
+        <b>한 닉네임당 최대 3번, 1표당 10점</b>
+      </p>
+
+      <input id="nicknameInput" type="text" placeholder="닉네임을 적어주세요" maxlength="12" />
+
+      <div class="buttons" id="voteButtons">
+        <button onclick="vote('kind')">💗 다정함</button>
+        <button onclick="vote('cute')">🌸 귀여움</button>
+        <button onclick="vote('clumsy')">🤦 허당력</button>
+        <button onclick="vote('positive')">☀️ 긍정에너지</button>
+        <button onclick="vote('sing')">🎤 노래력</button>
+        <button onclick="vote('empathy')">🫂 공감력</button>
+        <button onclick="vote('funny')">😆 웃음제조력</button>
+        <button onclick="vote('happy')">🍀 행복전파력</button>
+      </div>
+
+      <div class="status" id="voteStatus"></div>
+      <p class="small">※ 팬들이 투표하면 모두에게 실시간으로 반영됩니다.</p>
+    </div>
+
+    <div class="card">
+      <h2>💖 오늘의 조아 지수</h2>
+      <div class="joa-score" id="joaScore">0점</div>
+      <p class="small" id="scoreText">아직 연구 데이터가 부족합니다.</p>
+    </div>
+
+    <div class="card">
+      <h2>📊 오늘의 연구 결과</h2>
+      <div id="results"></div>
+    </div>
+
+    <div class="card">
+      <h2>⚠️ 연구소 경고</h2>
+      <p class="warning" id="warningText">조아의 매력을 연구하는 중입니다.</p>
+    </div>
+
+    <div class="card">
+      <h2>🔒 관리자</h2>
+      <input id="adminPassword" type="password" placeholder="관리자 비밀번호" />
+      <button onclick="openAdmin()">관리자 기록 보기</button>
+      <div class="admin-area" id="adminArea">
+        <h3>📋 투표 기록</h3>
+        <button class="danger" onclick="deleteAllVotes()">전체 투표 기록 삭제</button>
+        <div id="voteLogs"></div>
+      </div>
+      <p class="small">※ 관리자만 누가 어떤 항목에 투표했는지 확인할 수 있습니다.</p>
+    </div>
+
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import {
+      getFirestore,
+      collection,
+      addDoc,
+      onSnapshot,
+      query,
+      orderBy,
+      getDocs,
+      deleteDoc,
+      doc,
+      serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    // ✅ 여기에 본인 Firebase 설정값을 넣어주세요.
+    // Firebase 콘솔 → 프로젝트 설정 → 일반 → 내 앱 → firebaseConfig 복사
+    const firebaseConfig = {
+      apiKey: "AIzaSyCv1IGKHImzgIwf1zKRbxFm3oIlLPGCllc",
+      authDomain: "joa-lab.firebaseapp.com",
+      projectId: "joa-lab",
+      storageBucket: "joa-lab.firebasestorage.app",
+      messagingSenderId: "808819921862",
+      appId: "1:808819921862:web:38748b1ba5599669a518c7"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const ADMIN_PASSWORD = "joa1225";
+    const MAX_VOTES_PER_NICKNAME = 3;
+    const POINT_PER_VOTE = 10;
+
+    const traits = {
+      kind: { name: "💗 다정함", count: 0 },
+      cute: { name: "🌸 귀여움", count: 0 },
+      clumsy: { name: "🤦 허당력", count: 0 },
+      positive: { name: "☀️ 긍정에너지", count: 0 },
+      sing: { name: "🎤 노래력", count: 0 },
+      empathy: { name: "🫂 공감력", count: 0 },
+      funny: { name: "😆 웃음제조력", count: 0 },
+      happy: { name: "🍀 행복전파력", count: 0 }
+    };
+
+    let voteList = [];
+    let adminUnlocked = false;
+
+    window.vote = async function(type) {
+      const nicknameInput = document.getElementById("nicknameInput");
+      const nickname = nicknameInput.value.trim();
+      const status = document.getElementById("voteStatus");
+
+      if (!nickname) {
+        status.innerText = "닉네임을 먼저 적어주세요.";
+        nicknameInput.focus();
+        return;
+      }
+
+      const myVoteCount = voteList.filter(v => v.nickname === nickname).length;
+
+      if (myVoteCount >= MAX_VOTES_PER_NICKNAME) {
+        status.innerText = `${nickname}님은 이미 3번 투표했습니다.`;
+        return;
+      }
+
+      try {
+        await addDoc(collection(db, "joa_votes"), {
+          nickname: nickname,
+          traitKey: type,
+          traitName: traits[type].name,
+          point: POINT_PER_VOTE,
+          createdAt: serverTimestamp()
+        });
+
+        status.innerText = `${nickname}님, ${traits[type].name}에 10점 투표 완료!`;
+      } catch (error) {
+        console.error(error);
+        status.innerText = "투표 저장 중 오류가 발생했습니다. Firebase 설정을 확인해주세요.";
+      }
+    };
+
+    function resetTraitCounts() {
+      Object.keys(traits).forEach(key => {
+        traits[key].count = 0;
+      });
+    }
+
+    function updateFromVotes() {
+      resetTraitCounts();
+
+      voteList.forEach(vote => {
+        if (traits[vote.traitKey]) {
+          traits[vote.traitKey].count += 1;
+        }
+      });
+
+      updateResults();
+      updateWarning();
+      if (adminUnlocked) renderVoteLogs();
+    }
+
+    function updateResults() {
+      const results = document.getElementById("results");
+      results.innerHTML = "";
+
+      let totalVotes = 0;
+      Object.values(traits).forEach(trait => {
+        totalVotes += trait.count;
+      });
+
+      Object.keys(traits).forEach(key => {
+        const trait = traits[key];
+        const score = trait.count * POINT_PER_VOTE;
+        const percent = totalVotes === 0 ? 0 : Math.round((trait.count / totalVotes) * 100);
+
+        results.innerHTML += `
+          <div class="result">
+            ${trait.name} ${score}점 / ${trait.count}표 / ${percent}%
+            <div class="bar-bg">
+              <div class="bar" style="width:${percent}%"></div>
+            </div>
+          </div>
+        `;
+      });
+
+      updateJoaScore(totalVotes);
+    }
+
+    function updateJoaScore(totalVotes) {
+      const totalScore = totalVotes * POINT_PER_VOTE;
+      document.getElementById("joaScore").innerText = totalScore + "점";
+
+      let text = "아직 연구 데이터가 부족합니다.";
+
+      if (totalScore >= 300) {
+        text = "오늘도 매우 조아입니다. 연구소가 난리났습니다.";
+      } else if (totalScore >= 150) {
+        text = "조아 지수가 높게 측정되고 있습니다.";
+      } else if (totalScore >= 30) {
+        text = "조아의 매력이 서서히 관측되고 있습니다.";
+      }
+
+      document.getElementById("scoreText").innerText = text;
+    }
+
+    function updateWarning() {
+      let maxCount = 0;
+      let topKeys = [];
+
+      Object.keys(traits).forEach(key => {
+        const count = traits[key].count;
+        if (count > maxCount) {
+          maxCount = count;
+          topKeys = [key];
+        } else if (count === maxCount && count > 0) {
+          topKeys.push(key);
+        }
+      });
+
+      let message = "아직 충분한 연구 데이터가 없습니다.";
+
+      if (maxCount > 0) {
+        const topNames = topKeys.map(key => traits[key].name).join(" + ");
+        message = `🧪 연구 결과\n${topNames} 수치가 가장 강하게 관측되었습니다.`;
+
+        if (topKeys.includes("kind")) message += "\n조아의 다정함 때문에 연구원들의 마음이 따뜻해지고 있습니다.";
+        else if (topKeys.includes("cute")) message += "\n귀여움 과다 검출. 연구원들의 심장 보호가 필요합니다.";
+        else if (topKeys.includes("clumsy")) message += "\n허당력이 감지되었습니다. 귀여운 실수가 발생할 가능성이 있습니다.";
+        else if (topKeys.includes("positive")) message += "\n긍정에너지가 퍼지고 있습니다. 방송 분위기가 밝아지고 있습니다.";
+        else if (topKeys.includes("sing")) message += "\n노래력이 높게 측정되었습니다. 귀 호강 구간입니다.";
+        else if (topKeys.includes("empathy")) message += "\n공감력이 높게 관측되었습니다. 마음이 따뜻해질 수 있습니다.";
+        else if (topKeys.includes("funny")) message += "\n웃음제조력이 검출되었습니다. 방송 중 웃음 사고가 예상됩니다.";
+        else if (topKeys.includes("happy")) message += "\n행복전파력이 퍼지고 있습니다. 접속자 전원 미소 주의.";
+      }
+
+      document.getElementById("warningText").innerText = message;
+    }
+
+    function renderVoteLogs() {
+      const voteLogs = document.getElementById("voteLogs");
+      voteLogs.innerHTML = "";
+
+      if (voteList.length === 0) {
+        voteLogs.innerHTML = "<p class='small'>아직 투표 기록이 없습니다.</p>";
+        return;
+      }
+
+      [...voteList].reverse().forEach(vote => {
+        const date = vote.createdAt?.toDate ? vote.createdAt.toDate().toLocaleString("ko-KR") : "방금 전";
+        voteLogs.innerHTML += `
+          <div class="log-item">
+            <b>${escapeHtml(vote.nickname)}</b> → ${vote.traitName} / ${vote.point || 10}점<br>
+            <span class="small">${date}</span>
+          </div>
+        `;
+      });
+    }
+
+    window.openAdmin = function() {
+      const password = document.getElementById("adminPassword").value;
+      const adminArea = document.getElementById("adminArea");
+
+      if (password !== ADMIN_PASSWORD) {
+        alert("비밀번호가 틀렸습니다.");
+        return;
+      }
+
+      adminUnlocked = true;
+      adminArea.style.display = "block";
+      renderVoteLogs();
+    };
+
+    window.deleteAllVotes = async function() {
+      if (!adminUnlocked) return;
+      const ok = confirm("정말 전체 투표 기록을 삭제할까요? 이 작업은 되돌릴 수 없습니다.");
+      if (!ok) return;
+
+      try {
+        const snapshot = await getDocs(collection(db, "joa_votes"));
+        const deletePromises = [];
+        snapshot.forEach(item => {
+          deletePromises.push(deleteDoc(doc(db, "joa_votes", item.id)));
+        });
+        await Promise.all(deletePromises);
+        alert("전체 투표 기록을 삭제했습니다.");
+      } catch (error) {
+        console.error(error);
+        alert("삭제 중 오류가 발생했습니다.");
+      }
+    };
+
+    function escapeHtml(text) {
+      return String(text)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    const q = query(collection(db, "joa_votes"), orderBy("createdAt", "asc"));
+    onSnapshot(q, (snapshot) => {
+      voteList = [];
+      snapshot.forEach(doc => {
+        voteList.push({ id: doc.id, ...doc.data() });
+      });
+      updateFromVotes();
+    }, (error) => {
+      console.error(error);
+      document.getElementById("voteStatus").innerText = "Firebase 연결 오류가 있습니다. 설정값과 보안 규칙을 확인해주세요.";
+    });
+  </script>
+</body>
+</html>
