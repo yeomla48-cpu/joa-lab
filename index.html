@@ -256,14 +256,14 @@
       <input id="nicknameInput" type="text" placeholder="닉네임을 적어주세요" maxlength="12" />
 
       <div class="buttons" id="voteButtons">
-        <button onclick="vote('kind')">💗 다정함</button>
-        <button onclick="vote('cute')">🌸 귀여움</button>
-        <button onclick="vote('clumsy')">🤦 허당력</button>
-        <button onclick="vote('positive')">☀️ 긍정에너지</button>
-        <button onclick="vote('sing')">🎤 노래력</button>
-        <button onclick="vote('empathy')">🫂 공감력</button>
-        <button onclick="vote('funny')">😆 웃음제조력</button>
-        <button onclick="vote('happy')">🍀 행복전파력</button>
+        <button type="button" data-trait="kind">💗 다정함</button>
+        <button type="button" data-trait="cute">🌸 귀여움</button>
+        <button type="button" data-trait="clumsy">🤦 허당력</button>
+        <button type="button" data-trait="positive">☀️ 긍정에너지</button>
+        <button type="button" data-trait="sing">🎤 노래력</button>
+        <button type="button" data-trait="empathy">🫂 공감력</button>
+        <button type="button" data-trait="funny">😆 웃음제조력</button>
+        <button type="button" data-trait="happy">🍀 행복전파력</button>
       </div>
 
       <div class="status" id="voteStatus"></div>
@@ -355,10 +355,15 @@
     let voteList = [];
     let adminUnlocked = false;
 
-    window.vote = async function(type) {
+    async function vote(type) {
       const nicknameInput = document.getElementById("nicknameInput");
       const nickname = nicknameInput.value.trim();
       const status = document.getElementById("voteStatus");
+
+      if (!traits[type]) {
+        status.innerText = "알 수 없는 연구 항목입니다.";
+        return;
+      }
 
       if (!nickname) {
         status.innerText = "닉네임을 먼저 적어주세요.";
@@ -373,6 +378,10 @@
         return;
       }
 
+      const voteButtons = document.querySelectorAll("#voteButtons button");
+      voteButtons.forEach(button => button.disabled = true);
+      status.innerText = "투표를 저장하는 중입니다...";
+
       try {
         await addDoc(collection(db, "joa_votes"), {
           nickname: nickname,
@@ -385,9 +394,17 @@
         status.innerText = `${nickname} 연구원님이 ${traits[type].name}을 발견했습니다! +10점`;
       } catch (error) {
         console.error(error);
-        status.innerText = "투표 저장 중 오류가 발생했습니다. Firebase 설정을 확인해주세요.";
+        status.innerText = "투표 저장 중 오류가 발생했습니다. Firebase 설정 또는 Firestore 규칙을 확인해주세요.";
+      } finally {
+        voteButtons.forEach(button => button.disabled = false);
       }
-    };
+    }
+
+    document.querySelectorAll("#voteButtons button").forEach(button => {
+      button.addEventListener("click", () => {
+        vote(button.dataset.trait);
+      });
+    });
 
     function resetTraitCounts() {
       Object.keys(traits).forEach(key => {
